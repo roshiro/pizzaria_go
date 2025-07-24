@@ -19,11 +19,38 @@ func main() {
 	router.GET("/pizzas", getPizzas)
 	router.POST("/pizzas", postPizzas)
 	router.GET("/pizzas/:id", getPizza)
+	router.DELETE("/pizzas/:id", deletePizzaById)
+	router.PUT("/pizzas/:id", updatePizzaById)
 	router.Run(":8080")
 }
 
 func getPizzas(c *gin.Context) {
 	c.JSON(200, pizzas)
+}
+
+func deletePizzaById(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(400, gin.H {
+			"error": err.Error() })
+		return
+	}
+
+	for i, p := range pizzas {
+		if p.ID == id {
+			pizzas = append(pizzas[:i], pizzas[i+1:]...)
+			savePizza()
+			c.JSON(200, gin.H {
+				"message": "Pizza deleted" })
+			return
+		}
+	}
+	c.JSON(404, gin.H { "message": "Pizza not found" })
+}
+
+func updatePizzaById(c *gin.Context) {
+
 }
 
 func getPizza(c *gin.Context) {
