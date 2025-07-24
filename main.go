@@ -50,7 +50,28 @@ func deletePizzaById(c *gin.Context) {
 }
 
 func updatePizzaById(c *gin.Context) {
+	idParam := c.Param("id")
+	id, errr := strconv.Atoi(idParam)
+	if errr != nil {
+		c.JSON(400, gin.H{"error": "Invalid ID"})
+		return
+	}
 
+	var updatedPizza models.Pizza
+	if err := c.ShouldBindJSON(&updatedPizza); err != nil {
+		c.JSON(400, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	for i, p := range pizzas {
+		if p.ID == id {
+			updatedPizza.ID = id
+			pizzas[i] = updatedPizza
+			savePizza()
+			c.JSON(200, updatedPizza)
+			return
+		}
+	}
 }
 
 func getPizza(c *gin.Context) {
